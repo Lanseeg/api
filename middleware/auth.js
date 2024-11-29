@@ -1,17 +1,33 @@
 const jwt = require('jsonwebtoken');
 
 exports.verifyToken = (req, res, next) => {
-  const token = req.header('Authorization');
-  if (!token) return res.status(401).json({ message: 'Access Denied' });
-
   try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = verified; // Ajoute les infos de l'utilisateur au req
+    const authHeader = req.header('Authorization');
+    console.log('Authorization Header:', authHeader);
+
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Access denied. No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    console.log('Extracted Token:', token);
+
+    if (!token) {
+      return res.status(401).json({ error: 'Access denied. Token is missing.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Decoded Token:', decoded);
+
+    req.user = decoded;
     next();
   } catch (err) {
-    res.status(400).json({ message: 'Invalid Token' });
+    console.error('Token validation error:', err.message);
+    res.status(400).json({ error: 'Invalid token' });
   }
 };
+
+
 
 exports.isAdmin = (req, res, next) => {
   if (req.user.role !== 'admin') {
