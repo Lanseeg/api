@@ -7,6 +7,20 @@ dotenv.config();
 
 const app = express();
 
+// CORS Configuration (see .env options for environment specific CORS options)
+/*************  ✨ Codeium Command 🌟  *************/
+// const corsOptions = {
+//   origin: [
+//     'http://localhost:3000', // Allow local frontend during development
+//     //'https://your-frontend-domain.github.io', // Allow GitHub Pages frontend
+//     'https://your-frontend-on-render.com' // Allow Render frontend (if using Render for frontend)
+//   ],
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true, // Allow cookies if needed
+// };
+app.use(cors()); // Allow all origins
+
+
 // Middleware
 app.use(express.json()); 
 app.use(cors()); 
