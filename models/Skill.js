@@ -1,8 +1,16 @@
 const mongoose = require('mongoose');
 
 const SkillSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  level: { type: String, required: true }, // Ex: beginner, intermediate, advanced
+  name: {
+    fr: { type: String, required: true },
+    en: { type: String, required: true },
+    br: { type: String, required: true },
+  },
+  level: {
+    fr: { type: String, required: true },
+    en: { type: String, required: true },
+    br: { type: String, required: true },
+  },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'PortfolioUser', required: true },
 });
 

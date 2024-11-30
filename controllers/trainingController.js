@@ -45,37 +45,48 @@ exports.addTraining = async (req, res) => {
     }
   };
 
-  exports.updateTraining = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { title, institution, startDate, endDate, keySkills } = req.body;
-  
-      // Validate keySkills if provided
-      if (keySkills && !Array.isArray(keySkills)) {
-        return res.status(400).json({ error: 'Key skills must be an array of strings.' });
-      }
-  
-      // Validate endDate is not earlier than startDate
-      if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
-        return res.status(400).json({ error: 'End date cannot be earlier than start date.' });
-      }
-  
-      const updatedTraining = await Training.findOneAndUpdate(
-        { _id: id, userId: req.user.id },
-        { title, institution, startDate, endDate, keySkills },
-        { new: true }
-      );
-  
-      if (!updatedTraining) {
-        return res.status(404).json({ error: 'Training not found or not authorized to update.' });
-      }
-  
-      res.status(200).json(updatedTraining);
-    } catch (error) {
-      console.error('Error updating training:', error.message);
-      res.status(500).json({ error: error.message });
+// PUT: Update an existing training
+exports.updateTraining = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, institution, keySkills, startDate, endDate } = req.body;
+
+    // Validate required fields
+    if (!title || !institution || !keySkills || !startDate || !endDate) {
+      return res.status(400).json({ error: 'All fields are required.' });
     }
-  }; 
+
+    // Ensure title and institution are provided in all languages
+    if (!title.en || !title.fr || !title.br) {
+      return res.status(400).json({ error: 'Title in all languages is required.' });
+    }
+    if (!institution.en || !institution.fr || !institution.br) {
+      return res.status(400).json({ error: 'Institution in all languages is required.' });
+    }
+
+    // Ensure keySkills are arrays for all languages
+    if (!Array.isArray(keySkills.en) || !Array.isArray(keySkills.fr) || !Array.isArray(keySkills.br)) {
+      return res.status(400).json({ error: 'Key skills must be arrays in all languages.' });
+    }
+
+    // Find and update the training
+    const updatedTraining = await Training.findOneAndUpdate(
+      { _id: id, userId: req.user.id }, // Match training by ID and user
+      { title, institution, keySkills, startDate, endDate }, // Update fields
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedTraining) {
+      return res.status(404).json({ error: 'Training not found or not authorized.' });
+    }
+
+    res.status(200).json(updatedTraining);
+  } catch (error) {
+    console.error('Error updating training:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 exports.deleteTraining = async (req, res) => {
     try {
